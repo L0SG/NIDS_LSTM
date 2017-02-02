@@ -106,17 +106,38 @@ def input_data(data_path=os.getcwd()):
 
 def input_producer(raw_data, batch_size, num_steps, name=None):
     with tf.name_scope(name, "inputProducer", [raw_data, batch_size, num_steps]):
-#        print(len(raw_data))
-#        print(len(raw_data[1]))
-        cnt = 0
+
         # convert raw data type from string to int
         len_raw_data = len(raw_data)
         raw_data_int_converted = []
         for i in xrange(0, len_raw_data):
-            raw_data_int_converted.append(int(raw_data[i]))
+            raw_data_int_converted.append(map(int, raw_data[i]))
         raw_data = raw_data_int_converted
+
+        # convert to tensor format
         raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
+
+        # now raw_data has [num_features, num_samples] format
+        # transpose the data for sequence generation
+        raw_data = tf.transpose(raw_data)
+
+        # tf.size returns num_features x num_samples
         data_len = tf.size(raw_data)
+
+        # reshape the data to [num_features x time_window, num_batch]
+        # this makes the set [ [seq of 10 FW logs], [another seq of 10 FW logs], ...]
+        # implement here
+
+        # make x and y
+        # y is the prediction for x
+        # just make shifted-by-one matrices for testing
+        x = tf.slice(raw_data, [0, 0], [int(raw_data.get_shape()[0])-1, int(raw_data.get_shape()[1])])
+        y = tf.slice(raw_data, [1, 0], [int(raw_data.get_shape()[0])-1, int(raw_data.get_shape()[1])])
+
+        return x, y
+
+
+
         batch_len = data_len // batch_size
         data = tf.reshape(raw_data[0:batch_size*batch_len][:], [batch_size, batch_len])
         epoch_size = (batch_len-1) // num_steps
