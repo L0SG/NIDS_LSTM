@@ -116,10 +116,10 @@ def input_producer(raw_data, batch_size, num_steps, name=None):
 
         # convert to tensor format
         raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
-
         # now raw_data has [num_features, num_samples] format
+
         # transpose the data for sequence generation
-        raw_data = tf.transpose(raw_data)
+        # raw_data = tf.transpose(raw_data)
 
         # tf.size returns num_features x num_samples
         data_len = tf.size(raw_data)
@@ -131,8 +131,8 @@ def input_producer(raw_data, batch_size, num_steps, name=None):
         # make x and y
         # y is the prediction for x
         # just make shifted-by-one matrices for testing
-        x = tf.slice(raw_data, [0, 0], [int(raw_data.get_shape()[0])-1, int(raw_data.get_shape()[1])])
-        y = tf.slice(raw_data, [1, 0], [int(raw_data.get_shape()[0])-1, int(raw_data.get_shape()[1])])
+        x = tf.slice(raw_data, [0, 0], [int(raw_data.get_shape()[0]), int(raw_data.get_shape()[1])-1])
+        y = tf.slice(raw_data, [1, 0], [int(raw_data.get_shape()[0]), int(raw_data.get_shape()[1])-1])
 
         return x, y
 

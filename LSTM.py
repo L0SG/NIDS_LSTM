@@ -67,18 +67,19 @@ class ADModel(object):
                     embedding_var_name = "embedding"+str(i)
                     embedding[i] = tf.get_variable(embedding_var_name, [vocab[i], size], dtype=data_type())
                     inputs_temp = tf.nn.embedding_lookup(embedding[i], input_.input_data[i])
-                    print(inputs_temp)
-                    inputs_temp = tf.transpose(inputs_temp, [2, 0, 1])
-                    input_temp = tf.concat(0,[input_temp, inputs_temp])
+                    input_temp = tf.concat(1, [input_temp, inputs_temp])
                 elif i != 0:
                     inputs_temp = [tf.to_float(input_.input_data[i])]
-                    print(inputs_temp)
-                    input_temp = tf.concat(0,[input_temp, inputs_temp])
+                    inputs_temp = tf.transpose(inputs_temp)
+                    input_temp = tf.concat(1, [input_temp, inputs_temp])
                 else:
                     input_temp = [tf.to_float(input_.input_data[i])]
-            inputs = tf.transpose(input_temp, [1, 2, 0])
+                    input_temp = tf.transpose(input_temp)
+            inputs = inputs_temp
+
         if is_training and config.keep_prob < 1:
-              inputs = tf.nn.dropout(inputs, config.keep_prob)
+            inputs = tf.nn.dropout(inputs, config.keep_prob)
+
         # Simplified version of models/tutorials/rnn/rnn.py's rnn().
         # This builds an unrolled LSTM for tutorial purposes only.
         # In general, use the rnn() or state_saving_rnn() from rnn.py.
